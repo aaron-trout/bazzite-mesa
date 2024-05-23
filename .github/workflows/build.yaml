@@ -5,10 +5,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: Buildah Build
-        uses: redhat-actions/buildah-build@v2
+      # - name: checkout
+      #   uses: actions/checkout@v4
+      # - name: Buildah Build
+      #   uses: redhat-actions/buildah-build@v2
+      #   with:
+      #     containerfiles: ./Containerfile
+      #     image: bazzite-mesa
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5.3.0
         with:
-          containerfiles: ./Containerfile
-          image: bazzite-mesa
+          push: false
+          file: Containerfile
