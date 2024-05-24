@@ -1,19 +1,28 @@
 name: build
 run-name: build
 on: [push]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
     steps:
-      # - name: checkout
-      #   uses: actions/checkout@v4
-      # - name: Buildah Build
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     containerfiles: ./Containerfile
-      #     image: bazzite-mesa
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v5.3.0
-        with:
-          push: false
-          file: Containerfile
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v5
+      with:
+        pull: true
+        push: ${{ github.ref == 'refs/heads/main' }}
+        file: Containerfile
