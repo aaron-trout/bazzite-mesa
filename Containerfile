@@ -11,11 +11,11 @@ RUN git clone https://github.com/ublue-os/bazzite.git /src/github.com/ublue-os/b
 # RUN tar -cvJf /root/rpmbuild/SOURCES/mesa.tar.xz --exclude='.git' /root/rpmbuild/SOURCES/mesa
 WORKDIR /src/github.com/ublue-os/bazzite/spec_files/mesa
 RUN sed -i "s|Source0:        https://archive.mesa3d.org/mesa-%{ver}.tar.xz|Source0: https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.tar.gz|g" mesa.spec
-RUN sed -i "s/%autosetup -n %{name}-%{ver} -p1/%autosetup -n %{name} -p1/g" mesa.spec
+RUN sed -i "s/%autosetup -n %{name}-%{ver} -p1/%autosetup -n %{name}-main -p1/g" mesa.spec
+RUN sed -i "s/bazzite.{{{ git_dir_version }}}/mesa.main/g" mesa.spec
 RUN spectool --get-files --sourcedir mesa.spec
 
 RUN sed -i "s/%global ver 24.1.0/%global ver $(tar -Oxf /root/rpmbuild/SOURCES/mesa-main.tar.gz mesa-main/VERSION | tr -d '\n')/g" mesa.spec
-RUN sed -i "s/bazzite.{{{ git_dir_version }}}/mesa.main/g" mesa.spec
 RUN dnf builddep mesa.spec -y
 RUN cp ./* /root/rpmbuild/SOURCES/
 RUN rpmbuild -ba mesa.spec
