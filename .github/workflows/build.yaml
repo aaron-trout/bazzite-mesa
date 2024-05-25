@@ -23,4 +23,4 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
     - name: build image
-      run: buildah build .
+      run: buildah build --isolation=chroot .
