@@ -1,9 +1,16 @@
-FROM fedora:40
+FROM fedora:40 as builder
 
-RUN dnf install -y git \
+RUN dnf install -y \
+    --setopt=protected_multilib=false \
+    git \
     dnf-plugins-core \
     rpm-build \
     rpmdevtools \
+    glibc-devel.i686 \
+    libstdc++-devel.i686 \
+    lm_sensors-devel.i686 \
+    llvm-devel.i686 \
+    clang-devel.i686 \
     @development-tools
 
 RUN git clone https://github.com/ublue-os/bazzite.git /src/github.com/ublue-os/bazzite
