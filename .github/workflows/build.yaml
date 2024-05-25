@@ -22,5 +22,32 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: checkout
       uses: actions/checkout@v4
-    - name: build image
-      run: buildah build --isolation=chroot .
+    - name: prep
+      run: mkdir RPMS
+    - name: build rpms x86_32
+      run: >
+        buildah build
+        --isolation=chroot
+        -v $(realpath ./RPMS):/root/rpmbuild/RPMS
+        -f Containerfile-rpms
+        --platform=linux/386
+        .
+    - name: build rpms x86_64
+      run: >
+        buildah build
+        --isolation=chroot
+        -v $(realpath ./RPMS):/root/rpmbuild/RPMS
+        -f Containerfile-rpms
+        --platform=linux/amd64
+        .
+    - name: build final image
+      run: >
+        buildah build
+        --isolation=chroot
+        -v $(realpath ./RPMS):/root/rpmbuild/RPMS
+        -f Containerfile
+        --platform=linux/amd64
+        -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        .
+    - name: push image
+      run: buildah push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
