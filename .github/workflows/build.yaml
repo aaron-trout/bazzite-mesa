@@ -20,9 +20,7 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Check out repository code
+      uses: actions/checkout@v4
     - name: Build and push Docker images
-      uses: docker/build-push-action@v5
-      with:
-        pull: true
-        push: ${{ github.ref == 'refs/heads/main' }}
-        file: Containerfile
+      run: buildah build .
