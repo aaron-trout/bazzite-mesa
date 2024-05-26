@@ -25,7 +25,7 @@ jobs:
     - name: export version vars
       run: >
         export MESA_VERSION=$(cat ./mesa/VERSION) &&
-        export MESA_GIT_SHA=$(GIT_DIR=./mesa git rev-parse --short HEAD)
+        export MESA_GIT_SHA=$(GIT_DIR=./mesa/.git git rev-parse --short HEAD)
     - name: build srpm
       run: rpmbuild -bs --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" mesa.spec
     - name: build i386
