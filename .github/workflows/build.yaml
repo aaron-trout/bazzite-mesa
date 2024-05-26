@@ -7,28 +7,60 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+  build-rpm:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
+    container:
+      image: docker.io/library/fedora:40
     steps:
-    - name: ghcr login
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: install dependencies
+      run: dnf install -y git mock rpm-build rpmdevtools
     - name: checkout
       uses: actions/checkout@v4
-    - name: build
+    - name: modify mesa.spec
       run: >
-        buildah build
-        --isolation=chroot
-        -f Containerfile
-        --platform=linux/amd64
-        -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-        .
-    - name: push image
-      run: buildah push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        cd spec_files/mesa &&
+        sed -i "s|Source0:        https://archive.mesa3d.org/mesa-%{ver}.tar.xz|Source0: https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.tar.gz|g" mesa.spec &&
+        sed -i "s/%autosetup -n %{name}-%{ver} -p1/%autosetup -n %{name}-main -p1/g" mesa.spec &&
+        sed -i "s/bazzite.{{{ git_dir_version }}}/mesa.main/g" mesa.spec &&
+        spectool --get-files --sourcedir mesa.spec && cp ./* /root/rpmbuild/SOURCES/ &&
+        sed -i "s/%global ver 24.1.0/%global ver $(tar -Oxf /root/rpmbuild/SOURCES/mesa-main.tar.gz mesa-main/VERSION | tr -d '\n')/g" mesa.spec
+    - name: build srpm
+      run: rpmbuild -bs mesa.spec
+    - name: build i386
+      run: >
+        find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
+          mock -r fedora-40-i386 --rebuild --resultdir /out/rpm
+    - name: build x86_64
+      run: >
+        find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
+          mock -r fedora-40-x86_64 --rebuild --resultdir /out/rpm
+    - name: save artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpms
+        path: /out/rpm
+
+
+    # permissions:
+    #   contents: read
+    #   packages: write
+    #   attestations: write
+    # steps:
+    # - name: ghcr login
+    #   uses: docker/login-action@v3
+    #   with:
+    #     registry: ${{ env.REGISTRY }}
+    #     username: ${{ github.actor }}
+    #     password: ${{ secrets.GITHUB_TOKEN }}
+    # - name: checkout
+    #   uses: actions/checkout@v4
+    # - name: build
+    #   run: >
+    #     buildah build
+    #     --isolation=chroot
+    #     -f Containerfile
+    #     --platform=linux/amd64
+    #     -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+    #     .
+    # - name: push image
+    #   run: buildah push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest

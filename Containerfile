@@ -14,11 +14,11 @@ RUN rpmbuild -bs mesa.spec
 
 # build i386
 RUN find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1 \
-    mock -r fedora-40-i386 --rebuild --resultdir /root/resultdir
+    mock -r fedora-40-i386 --rebuild --isolation=simple --resultdir /root/resultdir
 
 # build x86_64
 RUN find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1 \
-    mock -r fedora-40-x86_64 --rebuild --resultdir /root/resultdir
+    mock -r fedora-40-x86_64 --rebuild --isolation=simple --resultdir /root/resultdir
 
 # RUN dnf install -y \
 #     --setopt=protected_multilib=false \
