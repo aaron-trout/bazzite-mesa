@@ -44,29 +44,56 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: rpms
-        path: /out/rpm
+        path: ${HOME}/rpmbuild/RPMS
 
+  build-image:
+    runs-on: ubuntu-latest
+    needs:
+    - build-rpm
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: restore artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: rpms
+    - name: build
+      run: >
+        mv ${HOME}/rpmbuild/RPMS RPMS &&
+        buildah build
+        -f Containerfile
+        --platform=linux/amd64
+        -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        .
+    - name: save image
+      run: podman save --format=oci-archive ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest > image
+    - name: save artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: image
+        path: image
 
-    # permissions:
-    #   contents: read
-    #   packages: write
-    #   attestations: write
-    # steps:
-    # - name: ghcr login
-    #   uses: docker/login-action@v3
-    #   with:
-    #     registry: ${{ env.REGISTRY }}
-    #     username: ${{ github.actor }}
-    #     password: ${{ secrets.GITHUB_TOKEN }}
-    # - name: checkout
-    #   uses: actions/checkout@v4
-    # - name: build
-    #   run: >
-    #     buildah build
-    #     --isolation=chroot
-    #     -f Containerfile
-    #     --platform=linux/amd64
-    #     -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-    #     .
-    # - name: push image
-    #   run: buildah push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+  push-image:
+    if: github.ref_name == main
+    runs-on: ubuntu-latest
+    needs:
+    - build-image
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+    steps:
+    - name: ghcr login
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: restore artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: image
+    - name: load image
+      run: podman load -i image
+    - name: push image
+      run: podman push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
