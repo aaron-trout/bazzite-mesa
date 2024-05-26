@@ -1,6 +1,6 @@
 FROM fedora:40 as builder
 
-RUN git clone https://github.com/ublue-os/bazzite.git /src/github.com/ublue-os/bazzite
+RUN dnf install -y git && git clone https://github.com/ublue-os/bazzite.git /src/github.com/ublue-os/bazzite
 WORKDIR /src/github.com/ublue-os/bazzite/spec_files/mesa
 RUN sed -i "s|Source0:        https://archive.mesa3d.org/mesa-%{ver}.tar.xz|Source0: https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.tar.gz|g" mesa.spec
 RUN sed -i "s/%autosetup -n %{name}-%{ver} -p1/%autosetup -n %{name}-main -p1/g" mesa.spec
