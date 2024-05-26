@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: docker.io/library/fedora:40
+      options: --privileged
     steps:
     - name: install dependencies
       run: dnf install -y git mock rpm-build rpmdevtools
