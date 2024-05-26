@@ -24,8 +24,8 @@ jobs:
         tar -czf ${HOME}/rpmbuild/SOURCES/mesa.tar.gz mesa
     - name: export version vars
       run: >
-        echo "{MESA_VERSION}={$(cat ./mesa/VERSION)}" >> "$GITHUB_ENV" &&
-        echo "{MESA_GIT_SHA}={$(GIT_DIR=./mesa/.git git rev-parse --short HEAD)}" >> "$GITHUB_ENV"
+        echo "MESA_VERSION=$(cat ./mesa/VERSION)" >> "$GITHUB_ENV" &&
+        echo "MESA_GIT_SHA=$(GIT_DIR=./mesa/.git git rev-parse --short HEAD)" >> "$GITHUB_ENV"
     - name: build srpm
       run: rpmbuild -bs --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" mesa.spec
     - name: build i386
