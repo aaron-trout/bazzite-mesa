@@ -33,11 +33,11 @@ jobs:
       run: rpmbuild -bs --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" mesa.spec
     - name: build i386
       run: >
-        find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
+        find ${HOME}/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
           mock -r fedora-40-i386 --rebuild --resultdir /out/rpm
     - name: build x86_64
       run: >
-        find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
+        find ${HOME}/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
           mock -r fedora-40-x86_64 --rebuild --resultdir /out/rpm
     - name: save artifacts
       uses: actions/upload-artifact@v4
