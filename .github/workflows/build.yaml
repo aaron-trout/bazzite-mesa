@@ -18,10 +18,13 @@ jobs:
       uses: actions/checkout@v4
     - name: checkout mesa
       run: git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
-    - name: create mesa source tarball
+    - name: create rpm sources
       run: >
         mkdir -p ${HOME}/rpmbuild/SOURCES/ &&
-        tar -czf ${HOME}/rpmbuild/SOURCES/mesa.tar.gz mesa
+        tar -czf ${HOME}/rpmbuild/SOURCES/mesa.tar.gz mesa &&
+        cp Mesa-MLAA-License-Clarification-Email.txt ${HOME}/rpmbuild/SOURCES/ &&
+        cp gnome-shell-glthread-disable.patch ${HOME}/rpmbuild/SOURCES/ &&
+        cp valve.patch ${HOME}/rpmbuild/SOURCES/
     - name: export version vars
       run: >
         echo "MESA_VERSION=$(cat ./mesa/VERSION)" >> "$GITHUB_ENV" &&
