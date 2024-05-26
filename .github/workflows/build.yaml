@@ -16,16 +16,16 @@ jobs:
       run: dnf install -y git mock rpm-build rpmdevtools
     - name: checkout
       uses: actions/checkout@v4
-    - name: modify mesa.spec
+    - name: checkout mesa
+      run: git clone https://gitlab.freedesktop.org/mesa/mesa.git
+    - name: create mesa source tarball
+      run: tar -czf ${HOME}/rpmbuild/SOURCES/mesa.tar.gz mesa
+    - name: export version vars
       run: >
-        cd spec_files/mesa &&
-        sed -i "s|Source0:        https://archive.mesa3d.org/mesa-%{ver}.tar.xz|Source0: https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.tar.gz|g" mesa.spec &&
-        sed -i "s/%autosetup -n %{name}-%{ver} -p1/%autosetup -n %{name}-main -p1/g" mesa.spec &&
-        sed -i "s/bazzite.{{{ git_dir_version }}}/mesa.main/g" mesa.spec &&
-        spectool --get-files --sourcedir mesa.spec && cp ./* /root/rpmbuild/SOURCES/ &&
-        sed -i "s/%global ver 24.1.0/%global ver $(tar -Oxf /root/rpmbuild/SOURCES/mesa-main.tar.gz mesa-main/VERSION | tr -d '\n')/g" mesa.spec
+        export MESA_VERSION=$(cat ./mesa/VERSION) &&
+        export MESA_GIT_SHA=$(GIT_DIR=./mesa git rev-parse --short HEAD)
     - name: build srpm
-      run: rpmbuild -bs mesa.spec
+      run: rpmbuild -bs --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" mesa.spec
     - name: build i386
       run: >
         find /root/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
