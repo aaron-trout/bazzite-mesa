@@ -19,7 +19,9 @@ jobs:
     - name: checkout mesa
       run: git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
     - name: create mesa source tarball
-      run: tar -czf ${HOME}/rpmbuild/SOURCES/mesa.tar.gz mesa
+      run: >
+        mkdir -p ${HOME}/rpmbuild/SOURCES/ &&
+        tar -czf ${HOME}/rpmbuild/SOURCES/mesa.tar.gz mesa
     - name: export version vars
       run: >
         export MESA_VERSION=$(cat ./mesa/VERSION) &&
