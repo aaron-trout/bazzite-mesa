@@ -34,11 +34,11 @@ jobs:
     - name: build i386
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
-          mock -r fedora-40-i386 --rebuild --resultdir /out/rpm
+          mock -r fedora-40-i386 --resultdir /out/rpm --rebuild
     - name: build x86_64
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -name '*.src.rpm' | xargs -n 1
-          mock -r fedora-40-x86_64 --rebuild --resultdir /out/rpm
+          mock -r fedora-40-x86_64 --resultdir /out/rpm --rebuild
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
