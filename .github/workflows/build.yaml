@@ -56,16 +56,26 @@ jobs:
       image: docker.io/library/fedora:40
       options: --privileged
     steps:
+    - id: cache_restore
+      name: restore cache
+      uses: actions/cache/restore@v4
+      with:
+        key: build-rpm-i386__${{ needs.build-srpm.outputs.mesa_git_sha }}
+        path: /github/home/rpmbuild/RPMS
     - name: install dependencies
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       run: dnf install -y git mock rpm-build rpmdevtools
     - name: checkout
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
     - name: restore artifacts
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       uses: actions/download-artifact@v4
       with:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: build i386
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       run: >
         mock
         -r fedora-40-i386
@@ -78,6 +88,13 @@ jobs:
       with:
         name: rpms-i386
         path: /github/home/rpmbuild/RPMS
+    - id: cache_save
+      name: save cache
+      if: steps.cache_restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        key: build-rpm-i386__${{ needs.build-srpm.outputs.mesa_git_sha }}
+        path: /github/home/rpmbuild/RPMS
 
   build-rpm-x86_64:
     runs-on: ubuntu-latest
@@ -87,16 +104,26 @@ jobs:
       image: docker.io/library/fedora:40
       options: --privileged
     steps:
+    - id: cache_restore
+      name: restore cache
+      uses: actions/cache/restore@v4
+      with:
+        key: build-rpm-x86_64__${{ needs.build-srpm.outputs.mesa_git_sha }}
+        path: /github/home/rpmbuild/RPMS
     - name: install dependencies
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       run: dnf install -y git mock rpm-build rpmdevtools
     - name: checkout
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
     - name: restore artifacts
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       uses: actions/download-artifact@v4
       with:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: build x86_64
+      if: steps.cache_restore.outputs.cache-hit != 'true'
       run: >
         mock
         -r fedora-40-x86_64
@@ -108,6 +135,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: rpms-x86_64
+        path: /github/home/rpmbuild/RPMS
+    - id: cache_save
+      name: save cache
+      if: steps.cache_restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        key: build-rpm-x86_64__${{ needs.build-srpm.outputs.mesa_git_sha }}
         path: /github/home/rpmbuild/RPMS
 
   build-image:
