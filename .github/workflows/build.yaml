@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: docker.io/library/fedora:40
+    outputs:
+      mesa_version: ${{ steps.output_vars.outputs.mesa_version }}
+      mesa_git_sha: ${{ steps.output_vars.outputs.mesa_git_sha }}
+      srpm_name: ${{ steps.output_vars.outputs.srpm_name }}
     steps:
     - name: install dependencies
       run: dnf install -y git rpm-build rpmdevtools
@@ -42,10 +46,6 @@ jobs:
         echo "mesa_git_sha=${MESA_GIT_SHA}" >> "$GITHUB_OUTPUT" &&
         echo "srpm_name=$(find ${HOME}/rpmbuild/SRPMS/ -type f -name '*.src.rpm')" >> "$GITHUB_OUTPUT" &&
         cat "$GITHUB_OUTPUT"
-    outputs:
-      mesa_version: ${{ steps.output_vars.outputs.mesa_version }}
-      mesa_git_sha: ${{ steps.output_vars.outputs.mesa_git_sha }}
-      srpm_name: ${{ steps.output_vars.outputs.srpm_name }}
 
   build-rpm-i386:
     runs-on: ubuntu-latest
