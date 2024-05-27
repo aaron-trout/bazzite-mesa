@@ -49,7 +49,7 @@ jobs:
         cat "$GITHUB_OUTPUT"
 
   build-rpm-i386:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs:
     - build-srpm
     container:
@@ -57,7 +57,7 @@ jobs:
       options: --privileged
     steps:
     - name: install dependencies
-      run: dnf install -y git mock rpm-build rpmdevtools tmux
+      run: dnf install -y git mock rpm-build rpmdevtools
     - name: checkout
       uses: actions/checkout@v4
     - name: restore artifacts
@@ -65,11 +65,8 @@ jobs:
       with:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-      with:
-        ## limits ssh access and adds the ssh public key for the user which triggered the workflow
-        limit-access-to-actor: true
+    - name: sleep
+      run: sleep 600
     - name: build i386
       run: >
         mock
