@@ -53,6 +53,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: srpms
+        path: /github/home/rpmbuild/SRPMS
     - name: build i386
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm" -exec
@@ -79,6 +80,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: srpms
+        path: /github/home/rpmbuild/SRPMS
     - name: build x86_64
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm" -exec
@@ -99,9 +101,13 @@ jobs:
       uses: actions/checkout@v4
     - name: restore artifacts
       uses: actions/download-artifact@v4
+      with:
+        merge-multiple: true
+        path: RPMS
+    - name: filter rpms
+      run: find RPMS -type f -name '*.rpm' | egrep '(debuginfo|devel|src)' | xargs rm -f
     - name: build
       run: >
-        mv ${HOME}/rpmbuild/RPMS RPMS &&
         buildah build
         -f Containerfile
         --platform=linux/amd64
