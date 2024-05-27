@@ -7,14 +7,13 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-rpm:
+  build-srpm:
     runs-on: ubuntu-latest
     container:
       image: docker.io/library/fedora:40
-      options: --privileged
     steps:
     - name: install dependencies
-      run: dnf install -y git mock rpm-build rpmdevtools
+      run: dnf install -y git rpm-build rpmdevtools
     - name: checkout
       uses: actions/checkout@v4
     - name: checkout mesa
@@ -32,10 +31,54 @@ jobs:
         echo "MESA_GIT_SHA=$(GIT_DIR=./mesa/.git git rev-parse --short HEAD)" >> "$GITHUB_ENV"
     - name: build srpm
       run: rpmbuild -bs --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" mesa.spec
+    - name: save artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: srpms
+        path: /github/home/rpmbuild/SRPMS
+
+  build-rpm-i386:
+    runs-on: ubuntu-latest
+    needs:
+    - build-srpm
+    container:
+      image: docker.io/library/fedora:40
+      options: --privileged
+    steps:
+    - name: install dependencies
+      run: dnf install -y git mock rpm-build rpmdevtools
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: restore artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: srpms
     - name: build i386
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm" -exec
         sh -c 'mock -r fedora-40-i386 --resultdir ${HOME}/rpmbuild/RPMS --rebuild {}' \;
+    - name: save artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpms-i386
+        path: /github/home/rpmbuild/RPMS
+
+  build-rpm-x86_64:
+    runs-on: ubuntu-latest
+    needs:
+    - build-srpm
+    container:
+      image: docker.io/library/fedora:40
+      options: --privileged
+    steps:
+    - name: install dependencies
+      run: dnf install -y git mock rpm-build rpmdevtools
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: restore artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: srpms
     - name: build x86_64
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm" -exec
@@ -43,20 +86,19 @@ jobs:
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: rpms
-        path: ${HOME}/rpmbuild/RPMS
+        name: rpms-x86_64
+        path: /github/home/rpmbuild/RPMS
 
   build-image:
     runs-on: ubuntu-latest
     needs:
-    - build-rpm
+    - build-rpm-i386
+    - build-rpm-x86_64
     steps:
     - name: checkout
       uses: actions/checkout@v4
     - name: restore artifacts
       uses: actions/download-artifact@v4
-      with:
-        name: rpms
     - name: build
       run: >
         mv ${HOME}/rpmbuild/RPMS RPMS &&
