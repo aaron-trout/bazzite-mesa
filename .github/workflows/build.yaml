@@ -1,6 +1,6 @@
 name: build
 run-name: build
-# on: [push]
+on: [push]
 
 env:
   REGISTRY: ghcr.io
@@ -41,6 +41,7 @@ jobs:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: output_vars
+      id: output_vars
       run: >
         echo "mesa_version=${MESA_VERSION}" >> "$GITHUB_OUTPUT" &&
         echo "mesa_git_sha=${MESA_GIT_SHA}" >> "$GITHUB_OUTPUT" &&
