@@ -36,6 +36,13 @@ jobs:
       with:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
+    - name: output_vars
+      run: >
+        echo "mesa_version=${MESA_VERSION}" >> "$GITHUB_OUTPUT" &&
+        echo "mesa_git_sha=${MESA_GIT_SHA}" >> "$GITHUB_OUTPUT"
+    outputs:
+      mesa_version: ${{ steps.output_vars.outputs.mesa_version }}
+      mesa_git_sha: ${{ steps.output_vars.outputs.mesa_git_sha }}
 
   build-rpm-i386:
     runs-on: ubuntu-latest
@@ -55,9 +62,12 @@ jobs:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: build i386
+      env:
+        MESA_VERSION: ${{ needs.build-srpm.outputs.mesa_version }}
+        MESA_GIT_SHA: ${{ needs.build-srpm.outputs.mesa_git_sha }}
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm" -exec
-        sh -c 'mock -r fedora-40-i386 --resultdir ${HOME}/rpmbuild/RPMS --rebuild {}' \;
+        sh -c 'mock -r fedora-40-i386 --resultdir ${HOME}/rpmbuild/RPMS --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" --rebuild {}' \;
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -82,9 +92,12 @@ jobs:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: build x86_64
+      env:
+        MESA_VERSION: ${{ needs.build-srpm.outputs.mesa_version }}
+        MESA_GIT_SHA: ${{ needs.build-srpm.outputs.mesa_git_sha }}
       run: >
         find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm" -exec
-        sh -c 'mock -r fedora-40-x86_64 --resultdir ${HOME}/rpmbuild/RPMS --rebuild {}' \;
+        sh -c 'mock -r fedora-40-x86_64 --resultdir ${HOME}/rpmbuild/RPMS --define="ver ${MESA_VERSION}" --define="commitsha ${MESA_GIT_SHA}" --rebuild {}' \;
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
