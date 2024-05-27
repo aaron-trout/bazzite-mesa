@@ -40,7 +40,8 @@ jobs:
       run: >
         echo "mesa_version=${MESA_VERSION}" >> "$GITHUB_OUTPUT" &&
         echo "mesa_git_sha=${MESA_GIT_SHA}" >> "$GITHUB_OUTPUT" &&
-        echo "srpm_name=$(find ${HOME}/rpmbuild/SRPMS/ -type f -name "*.src.rpm")" >> "$GITHUB_OUTPUT"
+        echo "srpm_name=$(find ${HOME}/rpmbuild/SRPMS/ -type f -name '*.src.rpm')" >> "$GITHUB_OUTPUT" &&
+        cat "$GITHUB_OUTPUT"
     outputs:
       mesa_version: ${{ steps.output_vars.outputs.mesa_version }}
       mesa_git_sha: ${{ steps.output_vars.outputs.mesa_git_sha }}
