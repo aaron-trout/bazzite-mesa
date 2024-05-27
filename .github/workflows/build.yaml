@@ -57,7 +57,7 @@ jobs:
       options: --privileged
     steps:
     - name: install dependencies
-      run: dnf install -y git mock rpm-build rpmdevtools
+      run: dnf install -y git mock rpm-build rpmdevtools tmux
     - name: checkout
       uses: actions/checkout@v4
     - name: restore artifacts
