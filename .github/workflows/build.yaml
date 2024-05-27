@@ -65,17 +65,13 @@ jobs:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: build i386
-      env:
-        MESA_VERSION: ${{ needs.build-srpm.outputs.mesa_version }}
-        MESA_GIT_SHA: ${{ needs.build-srpm.outputs.mesa_git_sha }}
-        SRPM_NAME: ${{ needs.build-srpm.outputs.srpm_name }}
       run: >
         mock
           -r fedora-40-i386
           --resultdir ${HOME}/rpmbuild/RPMS
-          --define="ver ${MESA_VERSION}"
-          --define="commitsha ${MESA_GIT_SHA}"
-          --rebuild ${SRPM_NAME}
+          --define="ver ${{ needs.build-srpm.outputs.mesa_version }}"
+          --define="commitsha ${{ needs.build-srpm.outputs.mesa_git_sha }}"
+          --rebuild ${{ needs.build-srpm.outputs.srpm_name }}
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -100,17 +96,13 @@ jobs:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
     - name: build x86_64
-      env:
-        MESA_VERSION: ${{ needs.build-srpm.outputs.mesa_version }}
-        MESA_GIT_SHA: ${{ needs.build-srpm.outputs.mesa_git_sha }}
-        SRPM_NAME: ${{ needs.build-srpm.outputs.srpm_name }}
       run: >
         mock
           -r fedora-40-x86_64
           --resultdir ${HOME}/rpmbuild/RPMS
-          --define="ver ${MESA_VERSION}"
-          --define="commitsha ${MESA_GIT_SHA}"
-          --rebuild ${SRPM_NAME}
+          --define="ver ${{ needs.build-srpm.outputs.mesa_version }}"
+          --define="commitsha ${{ needs.build-srpm.outputs.mesa_git_sha }}"
+          --rebuild ${{ needs.build-srpm.outputs.srpm_name }}
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
