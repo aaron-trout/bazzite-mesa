@@ -65,8 +65,6 @@ jobs:
       with:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
-    - name: test file exists
-      run: file ${{ needs.build-srpm.outputs.srpm_name }} && stat ${{ needs.build-srpm.outputs.srpm_name }}
     - name: build i386
       run: >
         mock
@@ -74,7 +72,7 @@ jobs:
           --resultdir ${HOME}/rpmbuild/RPMS
           --define="ver ${{ needs.build-srpm.outputs.mesa_version }}"
           --define="commitsha ${{ needs.build-srpm.outputs.mesa_git_sha }}"
-          --rebuild ${{ needs.build-srpm.outputs.srpm_name }}
+          --rebuild '${{ needs.build-srpm.outputs.srpm_name }}'
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -105,7 +103,7 @@ jobs:
           --resultdir ${HOME}/rpmbuild/RPMS
           --define="ver ${{ needs.build-srpm.outputs.mesa_version }}"
           --define="commitsha ${{ needs.build-srpm.outputs.mesa_git_sha }}"
-          --rebuild ${{ needs.build-srpm.outputs.srpm_name }}
+          --rebuild '${{ needs.build-srpm.outputs.srpm_name }}'
     - name: save artifacts
       uses: actions/upload-artifact@v4
       with:
