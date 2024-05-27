@@ -21,6 +21,7 @@ jobs:
     needs: job1
     container:
       image: docker.io/library/fedora:40
+      options: --privileged
     steps:
       - env:
           OUTPUT1: ${{needs.job1.outputs.output1}}
