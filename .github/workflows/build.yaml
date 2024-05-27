@@ -65,6 +65,8 @@ jobs:
       with:
         name: srpms
         path: /github/home/rpmbuild/SRPMS
+    - name: test file exists
+      run: file ${{ needs.build-srpm.outputs.srpm_name }} && stat ${{ needs.build-srpm.outputs.srpm_name }}
     - name: build i386
       run: >
         mock
