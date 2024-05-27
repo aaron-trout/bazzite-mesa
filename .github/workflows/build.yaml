@@ -157,6 +157,8 @@ jobs:
       with:
         merge-multiple: true
         path: RPMS
+    - name: list files
+      run: ls -lahR RPMS
     - name: filter rpms
       run: find RPMS -type f -name '*.rpm' | egrep '(debuginfo|devel|src)' | xargs rm -f
     - name: build
