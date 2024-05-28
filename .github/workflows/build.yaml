@@ -150,6 +150,9 @@ jobs:
         path: /github/home/rpmbuild/RPMS
 
   build-image:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     runs-on: ubuntu-latest
     needs:
     - build-rpm-i386
