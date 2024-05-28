@@ -22,7 +22,11 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
     - name: checkout mesa
-      run: git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
+      run: >
+        git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git &&
+        cd mesa &&
+        git checkout 06f7407 &&
+        cd ..
     - name: create rpm sources
       run: >
         mkdir -p ${HOME}/rpmbuild/SOURCES/ &&
