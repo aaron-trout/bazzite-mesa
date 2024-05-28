@@ -1,6 +1,9 @@
 name: build
 run-name: build
-on: [push]
+on:
+  push: {}
+  schedule:
+  - cron: "7 3 * * WED,SAT"  # 03:07 Wednesdays and Saturdays
 
 env:
   REGISTRY: eu.gcr.io/trouter-public
