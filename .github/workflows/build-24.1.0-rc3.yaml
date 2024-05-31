@@ -1,5 +1,5 @@
-name: build
-run-name: build
+name: build-24.1.0-rc3
+run-name: build-24.1.0-rc3
 on:
   push: {}
   schedule:
