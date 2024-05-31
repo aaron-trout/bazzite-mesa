@@ -9,7 +9,7 @@ env:
   REGISTRY: eu.gcr.io/trouter-public
   REGISTRY_HOST: eu.gcr.io
   IMAGE_NAME: ${{ github.repository }}
-  IMAGE_TAG: latest
+  IMAGE_TAG: mesa-24.1.0-rc3
 
 jobs:
   build-srpm:
@@ -26,7 +26,11 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
     - name: checkout mesa
-      run: git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
+      run: >
+        git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git &&
+        cd mesa &&
+        git checkout mesa-24.1.0-rc3 &&
+        cd ..
     - name: create rpm sources
       run: >
         mkdir -p ${HOME}/rpmbuild/SOURCES/ &&
