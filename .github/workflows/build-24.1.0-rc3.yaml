@@ -29,7 +29,7 @@ jobs:
       run: >
         git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git &&
         cd mesa &&
-        git checkout mesa-24.1.0-rc3 &&
+        git checkout 37bb30b32757888e3134ede4921b4e6ec01a84b7 &&
         cd ..
     - name: create rpm sources
       run: >
